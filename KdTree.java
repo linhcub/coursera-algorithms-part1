@@ -1,143 +1,166 @@
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
-import edu.princeton.cs.algs4.SET;
 
 public class KdTree {
-    private SET<Point2D> pointSet;
+    private class Node {
+        Point2D point;
+        Node left;
+        Node right;
+    }
+
+    private Node root;
+    private int size = 0;
 
     /**
      * Construct an empty set of points.
      */
     public KdTree() {
-        this.pointSet = new SET<Point2D>();
+        this.root = null;
     }
 
     /**
      * Is the set empty?
      */
     public boolean isEmpty() {
-        return this.pointSet.isEmpty();
+        return this.root == null;
     }
 
     /**
      * Number of points in the set.
      */
     public int size() {
-        return this.pointSet.size();
+        return this.size;
     }
 
     /**
      * Add the point to the set (if it is not already in the set).
      */
     public void insert(Point2D p) {
-        this.pointSet.add(p);
+        if (this.isEmpty()) {
+            this.root = new Node();
+            this.root.point = p;
+            this.size++;
+            return;
+        }
+        Node newNode = insertDfs(p, this.root, 0);
+        newNode.point = p;
+        this.size++;
+    }
+
+    private Node insertDfs(Point2D p, Node node, int depth) {
+        boolean isGoLeftByX = depth % 2 == 0 && p.x() < node.point.x();
+        boolean isGoLeftByY = depth % 2 != 0 && p.y() < node.point.y();
+        boolean isGoLeft = isGoLeftByX || isGoLeftByY;
+        if (isGoLeft) {
+            if (node.left == null) {
+                node.left = new Node();
+                return node.left;
+            } else {
+                return insertDfs(p, node.left, depth + 1);
+            }
+        } else {
+            if (node.right == null) {
+                node.right = new Node();
+                return node.right;
+            } else {
+                return insertDfs(p, node.right, depth + 1);
+            }
+        }
     }
 
     /**
      * Does the set contain point p?
      */
     public boolean contains(Point2D p) {
-        return this.pointSet.contains(p);
+        return this.containsDfs(p, this.root, 0);
+    }
+
+    private boolean containsDfs(Point2D p, Node node, int depth) {
+        if (node == null)
+            return false;
+        if (node.point.equals(p))
+            return true;
+        boolean isGoLeftByX = depth % 2 == 0 && p.x() < node.point.x();
+        boolean isGoLeftByY = depth % 2 != 0 && p.y() < node.point.y();
+        boolean isGoLeft = isGoLeftByX || isGoLeftByY;
+        if (isGoLeft)
+            return this.containsDfs(p, node.left, depth + 1);
+        return this.containsDfs(p, node.right, depth + 1);
     }
 
     /**
      * Draw all points to standard draw.
      */
     public void draw() {
-        for (Point2D point2d : this.pointSet) {
-            point2d.draw();
+        this.drawDfs(this.root);
+    }
+
+    private void drawDfs(Node node) {
+        if (node == null) {
+            return;
         }
+        drawDfs(node.left);
+        System.out.println(node.point);
+        node.point.draw();
+        System.out.println();
+        drawDfs(node.right);
     }
 
     /**
      * All points that are inside the rectangle (or on the boundary).
      */
     public Iterable<Point2D> range(RectHV rect) {
-        List<Point2D> list = new ArrayList<Point2D>();
-        for (Point2D point2d : this.pointSet) {
-            if (rect.contains(point2d)) {
-                list.add(point2d);
-            }
-        }
+        ArrayList<Point2D> list = new ArrayList<Point2D>();
+        RectHV nodeRect = new RectHV(0, 0, 1, 1);
+        this.addToRange(rect, this.root, nodeRect, 0, list);
         return list;
+    }
+
+    private void addToRange(RectHV rect, Node node, RectHV nodeRect, int depth, ArrayList<Point2D> list) {
+        if (node == null)
+            return;
+        if (!rect.intersects(nodeRect))
+            return;
+        if (rect.contains(node.point))
+            list.add(node.point);
+        RectHV nodeRectLeft = new RectHV(
+                nodeRect.xmin(),
+                nodeRect.ymin(),
+                depth % 2 == 0 ? node.point.x() : nodeRect.xmax(),
+                depth % 2 == 0 ? nodeRect.ymax() : node.point.y());
+        this.addToRange(rect, node.left, nodeRectLeft, depth + 1, list);
+        RectHV nodeRectRight = new RectHV(
+                depth % 2 == 0 ? node.point.x() : nodeRect.xmin(),
+                depth % 2 == 0 ? nodeRect.ymin() : node.point.y(),
+                nodeRect.xmax(),
+                nodeRect.ymax());
+        this.addToRange(rect, node.right, nodeRectRight, depth + 1, list);
     }
 
     /**
      * A nearest neighbor in the set to point p; null if the set is empty.
      */
     public Point2D nearest(Point2D p) {
-        if (this.isEmpty())
-            return null;
-        Iterator<Point2D> pointSetIterator = this.pointSet.iterator();
-        Point2D nearestPoint = pointSetIterator.next();
-        double shortestDistanceSquared = p.distanceSquaredTo(nearestPoint);
-        while (pointSetIterator.hasNext()) {
-            Point2D point2D = pointSetIterator.next();
-            double distanceSquared = p.distanceSquaredTo(point2D);
-            if (distanceSquared < shortestDistanceSquared) {
-                nearestPoint = point2D;
-                shortestDistanceSquared = distanceSquared;
-            }
-        }
-        return nearestPoint;
+        return new Point2D(0, 0);
     }
 
     /**
      * Unit testing of the methods (optional).
      */
     public static void main(String[] args) {
-        SET<Point2D> myset = new SET<Point2D>();
-        Point2D a = new Point2D(10, 10);
-        Point2D b = new Point2D(10, 10);
-        System.out.println(a == b);
-        myset.add(a);
-        System.out.println(myset.contains(new Point2D(10, 10)));
-        // System.out.println(a.distanceSquaredTo(null));
-
-        PointSET pointSet = new PointSET();
-        System.out.println("isEmpty: " + pointSet.isEmpty());
-        System.out.println("size: " + pointSet.size());
-        pointSet.insert(new Point2D(0, 0));
-        pointSet.insert(new Point2D(0.5, 0.5));
-        System.out.println("isEmpty: " + pointSet.isEmpty());
-        System.out.println("size: " + pointSet.size());
-        Point2D containedPoint = new Point2D(0, 0);
-        Point2D notContainedPoint = new Point2D(1, 0);
-        System.out.println("contain " + containedPoint.toString() + ": " + pointSet.contains(containedPoint));
-        System.out.println("contain " + notContainedPoint.toString() + ": " + pointSet.contains(notContainedPoint));
-
-        RectHV rect = new RectHV(0, 0, 0.3, 0.3);
-        System.out.println("range " + rect.toString());
-        for (Point2D point2D : pointSet.range(rect)) {
-            System.out.println(point2D);
-        }
-
-        RectHV rect2 = new RectHV(0.4, 0.4, 0.5, 0.5);
-        System.out.println("range " + rect2.toString());
-        for (Point2D point2D : pointSet.range(rect2)) {
-            System.out.println(point2D);
-        }
-
-        RectHV rect3 = new RectHV(0, 0, 0.5, 0.5);
-        System.out.println("range " + rect3.toString());
-        for (Point2D point2D : pointSet.range(rect3)) {
-            System.out.println(point2D);
-        }
-
-        RectHV rect4 = new RectHV(0.6, 0.6, 0.9, 0.9);
-        System.out.println("range " + rect4.toString());
-        for (Point2D point2D : pointSet.range(rect4)) {
-            System.out.println(point2D);
-        }
-
-        Point2D targetPoint = new Point2D(0.1, 0.4);
-        Point2D nearestPoint = pointSet.nearest(targetPoint);
-        System.out.println("nearest point to " + targetPoint.toString() + ": " + nearestPoint.toString());
-
-        pointSet.draw();
+        KdTree kdTree = new KdTree();
+        kdTree.insert(new Point2D(0.7, 0.2));
+        kdTree.insert(new Point2D(0.5, 0.4));
+        kdTree.insert(new Point2D(0.2, 0.3));
+        kdTree.insert(new Point2D(0.4, 0.7));
+        kdTree.insert(new Point2D(0.9, 0.6));
+        kdTree.draw();
+        System.out.println(kdTree.size());
+        RectHV searchRect = new RectHV(0, 0, 0.35, 0.35);
+        searchRect.draw();
+        System.out.println(kdTree.range(searchRect));
+        System.out.println(kdTree.contains(new Point2D(0.9, 0.6)));
     }
 }
