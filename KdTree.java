@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
@@ -146,14 +145,6 @@ public class KdTree {
             return;
         Point2D nearestPoint = nearestHM[0];
         double nearestDistanceSquared = nearestPoint.distanceSquaredTo(p);
-        System.out.println("node" + node.point.toString() + ", nearest"
-                + nearestPoint.toString()
-                + ",d nearest = " + nearestDistanceSquared
-                + ",nodeRect" + nodeRect.xmin() + ", " + nodeRect.ymin() + ", " + nodeRect.xmax() + ", "
-                + nodeRect.ymax()
-                + ", d nodeRect " + nodeRect.distanceSquaredTo(p)
-                + ", d node:"
-                + node.point.distanceSquaredTo(p));
         if (nearestDistanceSquared < nodeRect.distanceSquaredTo(p))
             return;
         if (nearestDistanceSquared > node.point.distanceSquaredTo(p))

@@ -58,6 +58,8 @@ public class PointSET {
      */
     public Iterable<Point2D> range(RectHV rect) {
         List<Point2D> list = new ArrayList<Point2D>();
+        if (rect == null)
+            return list;
         for (Point2D point2d : this.pointSet) {
             if (rect.contains(point2d)) {
                 list.add(point2d);
@@ -71,6 +73,8 @@ public class PointSET {
      */
     public Point2D nearest(Point2D p) {
         if (this.isEmpty())
+            return null;
+        if (p == null)
             return null;
         Iterator<Point2D> pointSetIterator = this.pointSet.iterator();
         Point2D nearestPoint = pointSetIterator.next();
