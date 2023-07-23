@@ -136,16 +136,15 @@ public class KdTree {
     public Point2D nearest(Point2D p) {
         if (this.root == null)
             return null;
-        HashMap<String, Point2D> nearestHM = new HashMap<String, Point2D>();
-        nearestHM.put("nearest", this.root.point);
-        this.nearestDfs(p, this.root, this.rootRect, 0, nearestHM);
-        return nearestHM.get("nearest");
+        Point2D[] nearestList = { this.root.point };
+        this.nearestDfs(p, this.root, this.rootRect, 0, nearestList);
+        return nearestList[0];
     }
 
-    private void nearestDfs(Point2D p, Node node, RectHV nodeRect, int depth, HashMap<String, Point2D> nearestHM) {
+    private void nearestDfs(Point2D p, Node node, RectHV nodeRect, int depth, Point2D[] nearestHM) {
         if (node == null)
             return;
-        Point2D nearestPoint = nearestHM.get("nearest");
+        Point2D nearestPoint = nearestHM[0];
         double nearestDistanceSquared = nearestPoint.distanceSquaredTo(p);
         System.out.println("node" + node.point.toString() + ", nearest"
                 + nearestPoint.toString()
@@ -158,7 +157,7 @@ public class KdTree {
         if (nearestDistanceSquared < nodeRect.distanceSquaredTo(p))
             return;
         if (nearestDistanceSquared > node.point.distanceSquaredTo(p))
-            nearestHM.put("nearest", node.point);
+            nearestHM[0] = node.point;
         this.nearestDfs(p, node.left, this.getNodeRectGoLeft(node, nodeRect, depth), depth + 1, nearestHM);
         this.nearestDfs(p, node.right, this.getNodeRectGoRight(node, nodeRect, depth), depth + 1, nearestHM);
     }
