@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
@@ -12,6 +13,7 @@ public class KdTree {
 
     private Node root;
     private int size = 0;
+    private RectHV rootRect = new RectHV(0, 0, 1, 1);
 
     /**
      * Construct an empty set of points.
@@ -113,8 +115,7 @@ public class KdTree {
      */
     public Iterable<Point2D> range(RectHV rect) {
         ArrayList<Point2D> list = new ArrayList<Point2D>();
-        RectHV nodeRect = new RectHV(0, 0, 1, 1);
-        this.addToRange(rect, this.root, nodeRect, 0, list);
+        this.addToRange(rect, this.root, this.rootRect, 0, list);
         return list;
     }
 
@@ -125,25 +126,57 @@ public class KdTree {
             return;
         if (rect.contains(node.point))
             list.add(node.point);
-        RectHV nodeRectLeft = new RectHV(
-                nodeRect.xmin(),
-                nodeRect.ymin(),
-                depth % 2 == 0 ? node.point.x() : nodeRect.xmax(),
-                depth % 2 == 0 ? nodeRect.ymax() : node.point.y());
-        this.addToRange(rect, node.left, nodeRectLeft, depth + 1, list);
-        RectHV nodeRectRight = new RectHV(
-                depth % 2 == 0 ? node.point.x() : nodeRect.xmin(),
-                depth % 2 == 0 ? nodeRect.ymin() : node.point.y(),
-                nodeRect.xmax(),
-                nodeRect.ymax());
-        this.addToRange(rect, node.right, nodeRectRight, depth + 1, list);
+        this.addToRange(rect, node.left, this.getNodeRectGoLeft(node, nodeRect, depth), depth + 1, list);
+        this.addToRange(rect, node.right, this.getNodeRectGoRight(node, nodeRect, depth), depth + 1, list);
     }
 
     /**
      * A nearest neighbor in the set to point p; null if the set is empty.
      */
     public Point2D nearest(Point2D p) {
-        return new Point2D(0, 0);
+        if (this.root == null)
+            return null;
+        HashMap<String, Point2D> nearestHM = new HashMap<String, Point2D>();
+        nearestHM.put("nearest", this.root.point);
+        this.nearestDfs(p, this.root, this.rootRect, 0, nearestHM);
+        return nearestHM.get("nearest");
+    }
+
+    private void nearestDfs(Point2D p, Node node, RectHV nodeRect, int depth, HashMap<String, Point2D> nearestHM) {
+        if (node == null)
+            return;
+        Point2D nearestPoint = nearestHM.get("nearest");
+        double nearestDistanceSquared = nearestPoint.distanceSquaredTo(p);
+        System.out.println("node" + node.point.toString() + ", nearest"
+                + nearestPoint.toString()
+                + ",d nearest = " + nearestDistanceSquared
+                + ",nodeRect" + nodeRect.xmin() + ", " + nodeRect.ymin() + ", " + nodeRect.xmax() + ", "
+                + nodeRect.ymax()
+                + ", d nodeRect " + nodeRect.distanceSquaredTo(p)
+                + ", d node:"
+                + node.point.distanceSquaredTo(p));
+        if (nearestDistanceSquared < nodeRect.distanceSquaredTo(p))
+            return;
+        if (nearestDistanceSquared > node.point.distanceSquaredTo(p))
+            nearestHM.put("nearest", node.point);
+        this.nearestDfs(p, node.left, this.getNodeRectGoLeft(node, nodeRect, depth), depth + 1, nearestHM);
+        this.nearestDfs(p, node.right, this.getNodeRectGoRight(node, nodeRect, depth), depth + 1, nearestHM);
+    }
+
+    private RectHV getNodeRectGoLeft(Node node, RectHV nodeRect, int depth) {
+        return new RectHV(
+                nodeRect.xmin(),
+                nodeRect.ymin(),
+                depth % 2 == 0 ? node.point.x() : nodeRect.xmax(),
+                depth % 2 == 0 ? nodeRect.ymax() : node.point.y());
+    }
+
+    private RectHV getNodeRectGoRight(Node node, RectHV nodeRect, int depth) {
+        return new RectHV(
+                depth % 2 == 0 ? node.point.x() : nodeRect.xmin(),
+                depth % 2 == 0 ? nodeRect.ymin() : node.point.y(),
+                nodeRect.xmax(),
+                nodeRect.ymax());
     }
 
     /**
@@ -162,5 +195,7 @@ public class KdTree {
         searchRect.draw();
         System.out.println(kdTree.range(searchRect));
         System.out.println(kdTree.contains(new Point2D(0.9, 0.6)));
+        System.out.println("The nearest point");
+        System.out.println(kdTree.nearest(new Point2D(0.4, 0.9)));
     }
 }
