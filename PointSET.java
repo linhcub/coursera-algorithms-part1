@@ -34,6 +34,8 @@ public class PointSET {
      * Add the point to the set (if it is not already in the set).
      */
     public void insert(Point2D p) {
+        if (p == null)
+            throw new IllegalArgumentException();
         this.pointSet.add(p);
     }
 
@@ -57,9 +59,9 @@ public class PointSET {
      * All points that are inside the rectangle (or on the boundary).
      */
     public Iterable<Point2D> range(RectHV rect) {
-        List<Point2D> list = new ArrayList<Point2D>();
         if (rect == null)
-            return list;
+            throw new IllegalArgumentException();
+        List<Point2D> list = new ArrayList<Point2D>();
         for (Point2D point2d : this.pointSet) {
             if (rect.contains(point2d)) {
                 list.add(point2d);
@@ -72,9 +74,9 @@ public class PointSET {
      * A nearest neighbor in the set to point p; null if the set is empty.
      */
     public Point2D nearest(Point2D p) {
-        if (this.isEmpty())
-            return null;
         if (p == null)
+            throw new IllegalArgumentException();
+        if (this.isEmpty())
             return null;
         Iterator<Point2D> pointSetIterator = this.pointSet.iterator();
         Point2D nearestPoint = pointSetIterator.next();
