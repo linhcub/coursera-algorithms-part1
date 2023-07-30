@@ -55,8 +55,8 @@ public class KdTree {
     }
 
     private Node insertDfs(Point2D p, Node node, int depth) {
-        boolean isGoLeftByX = depth % 2 == 0 && p.x() < node.point.x();
-        boolean isGoLeftByY = depth % 2 != 0 && p.y() < node.point.y();
+        boolean isGoLeftByX = depth % 2 == 0 && p.x() <= node.point.x();
+        boolean isGoLeftByY = depth % 2 != 0 && p.y() <= node.point.y();
         boolean isGoLeft = isGoLeftByX || isGoLeftByY;
 
         if (node.point.x() == p.x() && node.point.y() == p.y())
@@ -78,6 +78,8 @@ public class KdTree {
      * Does the set contain point p?
      */
     public boolean contains(Point2D p) {
+        if (p == null)
+            throw new IllegalArgumentException();
         return this.containsDfs(p, this.root, 0);
     }
 
