@@ -88,8 +88,8 @@ public class KdTree {
             return false;
         if (node.point.equals(p))
             return true;
-        boolean isGoLeftByX = depth % 2 == 0 && p.x() < node.point.x();
-        boolean isGoLeftByY = depth % 2 != 0 && p.y() < node.point.y();
+        boolean isGoLeftByX = depth % 2 == 0 && p.x() <= node.point.x();
+        boolean isGoLeftByY = depth % 2 != 0 && p.y() <= node.point.y();
         boolean isGoLeft = isGoLeftByX || isGoLeftByY;
         if (isGoLeft)
             return this.containsDfs(p, node.left, depth + 1);
@@ -183,12 +183,18 @@ public class KdTree {
      */
     public static void main(String[] args) {
         KdTree kdTree = new KdTree();
-        kdTree.insert(new Point2D(0.75, 0.25));
-        kdTree.insert(new Point2D(1.0, 0.0));
-        kdTree.insert(new Point2D(1.0, 0.5));
-        kdTree.insert(new Point2D(0.75, 1.0));
-        kdTree.insert(new Point2D(0.5, 1.0));
-        kdTree.insert(new Point2D(1.0, 0.0));
+        kdTree.insert(new Point2D(0.25, 0.0));
+        kdTree.insert(new Point2D(0.25, 0.75));
+        kdTree.insert(new Point2D(0.25, 1.0));
+        kdTree.insert(new Point2D(0.25, 0.25));
+        kdTree.insert(new Point2D(0.0, 0.75));
+        kdTree.insert(new Point2D(0.25, 0.5));
+        kdTree.insert(new Point2D(0.5, 0.5));
+        kdTree.insert(new Point2D(1.0, 0.75));
+        kdTree.insert(new Point2D(0.0, 0.0));
+        kdTree.insert(new Point2D(0.75, 0.5));
         System.out.println(kdTree.size);
+        // kdTree.draw();
+        System.out.println(kdTree.contains(new Point2D(0.75, 0.5)));
     }
 }
