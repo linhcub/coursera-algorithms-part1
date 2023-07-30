@@ -158,8 +158,12 @@ public class KdTree {
             return;
         if (nearestDistanceSquared > node.point.distanceSquaredTo(p))
             nearestHM[0] = node.point;
-        this.nearestDfs(p, node.left, this.getNodeRectGoLeft(node, nodeRect, depth), depth + 1, nearestHM);
-        this.nearestDfs(p, node.right, this.getNodeRectGoRight(node, nodeRect, depth), depth + 1, nearestHM);
+        boolean isGoLeftFirst = (depth % 2 == 0 && p.x() <= node.point.x())
+                || (depth % 2 != 0 && p.y() <= node.point.y());
+        if (isGoLeftFirst)
+            this.nearestDfs(p, node.left, this.getNodeRectGoLeft(node, nodeRect, depth), depth + 1, nearestHM);
+        else
+            this.nearestDfs(p, node.right, this.getNodeRectGoRight(node, nodeRect, depth), depth + 1, nearestHM);
     }
 
     private RectHV getNodeRectGoLeft(Node node, RectHV nodeRect, int depth) {
