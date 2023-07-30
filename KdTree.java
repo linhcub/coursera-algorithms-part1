@@ -59,22 +59,18 @@ public class KdTree {
         boolean isGoLeftByY = depth % 2 != 0 && p.y() < node.point.y();
         boolean isGoLeft = isGoLeftByX || isGoLeftByY;
 
+        if (node.point.x() == p.x() && node.point.y() == p.y())
+            return null;
         if (isGoLeft) {
-            if (node.left == null) {
-                node.left = new Node();
-                return node.left;
-            } else {
+            if (node.left != null)
                 return insertDfs(p, node.left, depth + 1);
-            }
+            node.left = new Node();
+            return node.left;
         } else {
-            if (node.right == null) {
-                if (node.point.x() == p.x() && node.point.y() == p.y())
-                    return null;
-                node.right = new Node();
-                return node.right;
-            } else {
+            if (node.right != null)
                 return insertDfs(p, node.right, depth + 1);
-            }
+            node.right = new Node();
+            return node.right;
         }
     }
 
@@ -185,43 +181,12 @@ public class KdTree {
      */
     public static void main(String[] args) {
         KdTree kdTree = new KdTree();
-        // kdTree.insert(new Point2D(0.7, 0.2));
-        // kdTree.insert(new Point2D(0.5, 0.4));
-        // kdTree.insert(new Point2D(0.2, 0.3));
-        // kdTree.insert(new Point2D(0.4, 0.7));
-        // kdTree.insert(new Point2D(0.9, 0.6));
-        // kdTree.insert(new Point2D(0.9, 0.6));
-        // kdTree.draw();
-        // System.out.println(kdTree.size());
-        // RectHV searchRect = new RectHV(0, 0, 0.35, 0.35);
-        // searchRect.draw();
-        // System.out.println(kdTree.range(searchRect));
-        // System.out.println(kdTree.contains(new Point2D(0.9, 0.6)));
-        // System.out.println("The nearest point");
-        // System.out.println(kdTree.nearest(new Point2D(0.4, 0.9)));
-        kdTree.insert(new Point2D(0.29, 0.23));
-        System.out.println(kdTree.size());
-        // kdTree.insert(new Point2D(0.6, 0.87));
-        // System.out.println(kdTree.size());
-        // kdTree.insert(new Point2D(0.37, 0.01));
-        // System.out.println(kdTree.size());
-        // kdTree.insert(new Point2D(0.9, 0.61));
-        // System.out.println(kdTree.size());
-        // kdTree.insert(new Point2D(0.75, 0.23));
-        // System.out.println(kdTree.size());
-        // kdTree.insert(new Point2D(0.58, 0.31));
-        // System.out.println(kdTree.size());
-        // kdTree.insert(new Point2D(0.69, 0.43));
-        // System.out.println(kdTree.size());
-        // kdTree.insert(new Point2D(0.57, 0.69));
-        // System.out.println(kdTree.size());
-        // kdTree.insert(new Point2D(0.69, 0.85));
-        // System.out.println(kdTree.size());
-        // kdTree.insert(new Point2D(0.88, 0.9));
-        // System.out.println(kdTree.size());
-        // kdTree.insert(new Point2D(0.04, 0.09));
-        // System.out.println(kdTree.size());
-        kdTree.insert(new Point2D(0.29, 0.23));
-        System.out.println(kdTree.size());
+        kdTree.insert(new Point2D(0.75, 0.25));
+        kdTree.insert(new Point2D(1.0, 0.0));
+        kdTree.insert(new Point2D(1.0, 0.5));
+        kdTree.insert(new Point2D(0.75, 1.0));
+        kdTree.insert(new Point2D(0.5, 1.0));
+        kdTree.insert(new Point2D(1.0, 0.0));
+        System.out.println(kdTree.size);
     }
 }
